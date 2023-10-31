@@ -31,9 +31,12 @@ function Glass() {
       accounts.push(account_addr[element])
     }
     console.log("Accounts List: ",accounts[1])      // Logs the second account from the 'accounts' array to the console.
-    fedLearning.methods.sendWeights(accounts[1], data.data.data.client0).send({from:accounts[0], gas: 3000000}); // Calls the 'sendWeights' method of the 'fedLearning' contract to send client0's data to the second Ethereum account.  // The 'from' parameter specifies the sender's account and 'gas' is the gas limit for the transaction.
-    fedLearning.methods.sendWeights(accounts[2], data.data.data.client1).send({from:accounts[0], gas: 3000000}); // Similarly, sends client1's data to the third Ethereum account.
-    fedLearning.methods.sendWeights(accounts[3], data.data.data.client2).send({from:accounts[0], gas: 3000000}); // Sends client2's data to the fourth Ethereum account.
+    for (let i = 1; i <= x; i++) {
+      fedLearning.methods.sendWeights(accounts[i], data.data.data.client0).send({from:accounts[0], gas: 3000000}); // Calls the 'sendWeights' method of the 'fedLearning' contract to send client0's data to the second Ethereum account.  // The 'from' parameter specifies the sender's account and 'gas' is the gas limit for the transaction.
+    }
+    // fedLearning.methods.sendWeights(accounts[1], data.data.data.client0).send({from:accounts[0], gas: 3000000}); // Calls the 'sendWeights' method of the 'fedLearning' contract to send client0's data to the second Ethereum account.  // The 'from' parameter specifies the sender's account and 'gas' is the gas limit for the transaction.
+    // fedLearning.methods.sendWeights(accounts[2], data.data.data.client1).send({from:accounts[0], gas: 3000000}); // Similarly, sends client1's data to the third Ethereum account.
+    // fedLearning.methods.sendWeights(accounts[3], data.data.data.client2).send({from:accounts[0], gas: 3000000}); // Sends client2's data to the fourth Ethereum account.
     setTrain(true)   // Updates the state variable 'train' to true, indicating that the training process is completed.
   }
 
@@ -48,30 +51,40 @@ function Glass() {
 
     const payload = []   // Initializes an empty array 'payload' to store data.
     
-    await fedLearning.methods.getWeights(accounts[1]).call().then((data)=>{
-      // console.log(data)
-      payload.push(data)
-    });   // Retrieves weights for account 1 from the 'fedLearning' contract and adds it to the 'payload' array.
-    // console.log("aggregation1")
-    console.log("here")
-    console.log("Get data from address ", accounts[1])
-    console.log("data: ", payload[0])
-    await fedLearning.methods.getWeights(accounts[2]).call().then((data) => {
-      payload.push(data)
-    });     // Similarly, fetches weights for accounts 2 and 3 and adds them to the 'payload' array.
-    console.log("Get data from address ", accounts[2])
-    console.log("data: ", payload[1])
-    await fedLearning.methods.getWeights(accounts[3]).call().then((data) => {
-      payload.push(data)
-    });
-    console.log("Get data from address ", accounts[3])
-    console.log("data: ", payload[2])
+    for (let i = 1; i <= x; i++) {
+      await fedLearning.methods.getWeights(accounts[i]).call().then((data)=>{
+        // console.log(data)
+        payload.push(data)
+      });   // Retrieves weights for account 1 from the 'fedLearning' contract and adds it to the 'payload' array.  
+      console.log("Get data from address ", accounts[i])
+      console.log("data: ", payload[i-1])
+    }
+    // await fedLearning.methods.getWeights(accounts[1]).call().then((data)=>{
+    //   // console.log(data)
+    //   payload.push(data)
+    // });   // Retrieves weights for account 1 from the 'fedLearning' contract and adds it to the 'payload' array.
+    // // console.log("aggregation1")
+    // // console.log("here")
+    // console.log("Get data from address ", accounts[1])
+    // console.log("data: ", payload[0])
+    // await fedLearning.methods.getWeights(accounts[2]).call().then((data) => {
+    //   payload.push(data)
+    // });     // Similarly, fetches weights for accounts 2 and 3 and adds them to the 'payload' array.
+    // console.log("Get data from address ", accounts[2])
+    // console.log("data: ", payload[1])
+    // await fedLearning.methods.getWeights(accounts[3]).call().then((data) => {
+    //   payload.push(data)
+    // });
+    // console.log("Get data from address ", accounts[3])
+    // console.log("data: ", payload[2])
     
     //Mint NFT
     // Mint NFTs for three accounts using 'flockie' contract.
-    await flockie.methods.mintNFT(accounts[4], FLK_wolf).send({from:accounts[0], gas: 3000000});
-    await flockie.methods.mintNFT(accounts[5], FLK_elephant).send({from:accounts[0], gas: 3000000});
-    await flockie.methods.mintNFT(accounts[6], FLK_tiger).send({from:accounts[0], gas: 3000000});
+    // await flockie.methods.mintNFT(accounts[7], FLK_wolf).send({from:accounts[0], gas: 3000000});
+    // await flockie.methods.mintNFT(accounts[8], FLK_elephant).send({from:accounts[0], gas: 3000000});
+    for (let i = 0; i < x; i++) {
+      await flockie.methods.mintNFT(accounts[9-i], FLK_tiger).send({from:accounts[0], gas: 3000000});
+    }
     // Sends NFTs to accounts 4, 5, and 6 with respective token identifiers.
 
     const data_agg = await axios.post('http://localhost:8080/aggregate', payload)    // Posts the 'payload' data to 'http://localhost:8080/aggregate' and gets the aggregated data.
@@ -79,9 +92,10 @@ function Glass() {
     setServer(true)   // Sets the 'server' state to true, indicating the server has received aggregated data
 
     // Votes on the accuracy of the aggregated data for the respective accounts using the 'flockie' contract
-    await flockie.methods.vote(accounts[4], data_agg.data.data.accuracy[0]).send({from:accounts[0], gas: 3000000});
-    await flockie.methods.vote(accounts[5], data_agg.data.data.accuracy[1]).send({from:accounts[0], gas: 3000000});
-    await flockie.methods.vote(accounts[6], data_agg.data.data.accuracy[2]).send({from:accounts[0], gas: 3000000});
+
+    for (let i = 0; i < x; i++) {
+      await flockie.methods.vote(accounts[9-i], data_agg.data.data.accuracy[i]).send({from:accounts[0], gas: 3000000});  
+    }
 
     const upd = await flockie.methods.getVoteUpdate().call()  // Fetches update information from the 'flockie' contract
 

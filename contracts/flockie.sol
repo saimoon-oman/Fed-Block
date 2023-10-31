@@ -57,8 +57,8 @@ contract Flockie is ERC721URIStorage {
         if(update > noUpdate){
             return true;
         }
-        // return false;
-        return true;
+        return false;
+        // return true;
     }
 
 

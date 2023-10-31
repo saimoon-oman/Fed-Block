@@ -2,7 +2,7 @@
 export const FLK_tiger = 'https://flockie.infura-ipfs.io/ipfs/QmeZ2BD7wwmQL6EPC2ZQ4ByrfFXajAYFCy4G3qQV5wWKti'
 export const FLK_wolf = 'https://flockie.infura-ipfs.io/ipfs/QmbfvAysFRziQFnEWTA1S2BUF83sRP7wroZhb8n9xSNAzw'
 export const FLK_elephant = 'https://flockie.infura-ipfs.io/ipfs/QmZYuG18otPtYwS1VU8w3EGktQWS2GiMqx4FkJFfVpexHm'
-export const contractAddress_fedLearning = '0xC719847484d5aEF6050C62501A647f1f36DEef91'
+export const contractAddress_fedLearning = '0x7a254B67e76eBd98743074Ef00782E76019CdbF2'
 export const abi_fedLearning =  [
   {
     "inputs": [],
@@ -81,7 +81,7 @@ export const abi_fedLearning =  [
     "constant": true
   }
 ]
-export const contractAddress_flockie = '0x39146C9F1a8C6236B4a445B4B2444E2247Ea107A'
+export const contractAddress_flockie = '0x95119033B7348740a305CB94bf11910aEc28D22B'
 export const abi_flockie = [
   {
     "inputs": [],
