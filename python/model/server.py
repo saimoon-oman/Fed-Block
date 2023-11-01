@@ -78,12 +78,12 @@ class Server:
     def test(self, X, y):
         # y = self.data["TenYearCHD"]
         # X = self.data.drop(columns=['TenYearCHD', 'education'], axis=1)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=0)
+        # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=0)
 
         scaler = StandardScaler()
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.transform(X_test)
+        # X_train = scaler.fit_transform(X_train)
+        X_test = scaler.fit_transform(X)
         predictions = self.model.predict(X_test)
-        accuracy = np.sum(predictions == y_test) / y_test.shape[0] * 100
+        accuracy = np.sum(predictions == y) / y.shape[0] * 100
 
         return accuracy

@@ -2,12 +2,52 @@
 export const FLK_tiger = 'https://flockie.infura-ipfs.io/ipfs/QmeZ2BD7wwmQL6EPC2ZQ4ByrfFXajAYFCy4G3qQV5wWKti'
 export const FLK_wolf = 'https://flockie.infura-ipfs.io/ipfs/QmbfvAysFRziQFnEWTA1S2BUF83sRP7wroZhb8n9xSNAzw'
 export const FLK_elephant = 'https://flockie.infura-ipfs.io/ipfs/QmZYuG18otPtYwS1VU8w3EGktQWS2GiMqx4FkJFfVpexHm'
-export const contractAddress_fedLearning = '0x7a254B67e76eBd98743074Ef00782E76019CdbF2'
+export const contractAddress_fedLearning = '0x4A8151BE16284a87D25e1a8dCD752FaBf7d70D7D'
 export const abi_fedLearning =  [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "hasVoted",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isRegistered",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
   },
   {
     "inputs": [
@@ -79,9 +119,42 @@ export const abi_fedLearning =  [
     "stateMutability": "view",
     "type": "function",
     "constant": true
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "voter",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "acc",
+        "type": "uint256"
+      }
+    ],
+    "name": "vote",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function",
+    "payable": true
+  },
+  {
+    "inputs": [],
+    "name": "getVoteUpdate",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
   }
 ]
-export const contractAddress_flockie = '0x95119033B7348740a305CB94bf11910aEc28D22B'
+export const contractAddress_flockie = '0x1412bE7C06Cec81FBE8417d9A89c7fd3fB234dBB'
 export const abi_flockie = [
   {
     "inputs": [],

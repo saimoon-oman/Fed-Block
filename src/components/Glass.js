@@ -21,8 +21,6 @@ function Glass() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()      // Prevents the default form submission behavior to handle data via code.
-    const params = { x }    // Creates an object with no. of client which is x
-    const data = await axios.post('http://localhost:8080/train', params)    // Sends a POST request to 'http://localhost:8080/train' endpoint with the 'params' object.   Receives the response data returned from the server.
     var accounts = []         // Initializes an empty array 'accounts' to store Ethereum accounts.
     const account_addr = await web3.eth.getAccounts()           // Retrieves Ethereum accounts available through Web3.
     console.log("All Ethemereum Accounts: ")
@@ -30,9 +28,21 @@ function Glass() {
     for(var element in account_addr){       // Loops through the 'account_addr' array and adds each account to the 'accounts' array.
       accounts.push(account_addr[element])
     }
+    const serverhash = await axios.get('http://localhost:8080/initiallySetServerWeights')
+    console.log(serverhash.data.hash)
+    await fedLearning.methods.setServer(serverhash.data.hash).send({from:accounts[0], gas: 3000000})
+    const s_hash = []
+    await fedLearning.methods.getServer().call().then((server)=>{
+      // console.log(data)
+      s_hash.push(server)
+      console.log(s_hash)
+    }); 
+    const params = { x }    // Creates an object with no. of client which is x
+    const data = await axios.post('http://localhost:8080/train', params)    // Sends a POST request to 'http://localhost:8080/train' endpoint with the 'params' object.   Receives the response data returned from the server.
+    
     console.log("Accounts List: ",accounts[1])      // Logs the second account from the 'accounts' array to the console.
     for (let i = 1; i <= x; i++) {
-      fedLearning.methods.sendWeights(accounts[i], data.data.data.client0).send({from:accounts[0], gas: 3000000}); // Calls the 'sendWeights' method of the 'fedLearning' contract to send client0's data to the second Ethereum account.  // The 'from' parameter specifies the sender's account and 'gas' is the gas limit for the transaction.
+      fedLearning.methods.sendWeights(accounts[i], data.data.data[`client${i-1}`]).send({from:accounts[i], gas: 3000000}); // Calls the 'sendWeights' method of the 'fedLearning' contract to send client0's data to the second Ethereum account.  // The 'from' parameter specifies the sender's account and 'gas' is the gas limit for the transaction.
     }
     // fedLearning.methods.sendWeights(accounts[1], data.data.data.client0).send({from:accounts[0], gas: 3000000}); // Calls the 'sendWeights' method of the 'fedLearning' contract to send client0's data to the second Ethereum account.  // The 'from' parameter specifies the sender's account and 'gas' is the gas limit for the transaction.
     // fedLearning.methods.sendWeights(accounts[2], data.data.data.client1).send({from:accounts[0], gas: 3000000}); // Similarly, sends client1's data to the third Ethereum account.
@@ -82,29 +92,34 @@ function Glass() {
     // Mint NFTs for three accounts using 'flockie' contract.
     // await flockie.methods.mintNFT(accounts[7], FLK_wolf).send({from:accounts[0], gas: 3000000});
     // await flockie.methods.mintNFT(accounts[8], FLK_elephant).send({from:accounts[0], gas: 3000000});
-    for (let i = 0; i < x; i++) {
-      await flockie.methods.mintNFT(accounts[9-i], FLK_tiger).send({from:accounts[0], gas: 3000000});
-    }
+    // for (let i = 0; i < x; i++) {
+    //   await flockie.methods.mintNFT(accounts[9-i], FLK_tiger).send({from:accounts[0], gas: 3000000});
+    // }
     // Sends NFTs to accounts 4, 5, and 6 with respective token identifiers.
 
     const data_agg = await axios.post('http://localhost:8080/aggregate', payload)    // Posts the 'payload' data to 'http://localhost:8080/aggregate' and gets the aggregated data.
     
     setServer(true)   // Sets the 'server' state to true, indicating the server has received aggregated data
-
+    console.log("HELLLLOOOOOOO")
     // Votes on the accuracy of the aggregated data for the respective accounts using the 'flockie' contract
 
-    for (let i = 0; i < x; i++) {
-      await flockie.methods.vote(accounts[9-i], data_agg.data.data.accuracy[i]).send({from:accounts[0], gas: 3000000});  
+    for (let i = 1; i <= x; i++) {
+      await fedLearning.methods.vote(accounts[i], data_agg.data.data.accuracy[i-1]).send({from:accounts[i], gas: 3000000});  
     }
 
-    const upd = await flockie.methods.getVoteUpdate().call()  // Fetches update information from the 'flockie' contract
+    const upd = await fedLearning.methods.getVoteUpdate().call()  // Fetches update information from the 'flockie' contract
 
     if(upd){
       // If an update is available, set the server hash on the 'fedLearning' contract
-      await fedLearning.methods.setServer(data_agg.data.data.hash).call().then((data) => {
+      var data = await fedLearning.methods.setServer(data_agg.data.data.hash).send({from:accounts[0], gas: 3000000})
+      if (data) {
         setUpdate(true)
-        setApprove(data)  // Updates the 'update' state and approves the data from the 'fedLearning' contract
-      })
+        setApprove(data)
+      }
+      // await fedLearning.methods.setServer(data_agg.data.data.hash).call().then((data) => {
+      //   setUpdate(true)
+      //   setApprove(data)  // Updates the 'update' state and approves the data from the 'fedLearning' contract
+      // })
     }
   }
 

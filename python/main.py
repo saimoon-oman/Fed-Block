@@ -14,6 +14,11 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 import requests
+from sklearn.preprocessing import StandardScaler
+
+server = Server()
+X_test_list = []
+y_test_list = []
 
 class Input(BaseModel):
     x: int
@@ -48,6 +53,7 @@ async def aggregate(request:Request):
     print("result")
     print(res)
 
+    clients = list()
     # Process each item in the received data
     for i in res:
         # Prepare parameters for IPFS request
@@ -59,12 +65,10 @@ async def aggregate(request:Request):
         response2 = requests.post(endpoint + '/api/v0/cat', params=params, auth=(projectId, projectSecret))
         # print(response2)
         # print(response2.text)
-        clients = list()
-        n = 0
+        
 
         # Process the data from IPFS and create a list of clients
         with open(response2.text) as f:
-            n += 1
             print(f"Value of f: {f}")
             for line in f:
                 x = line.split(",")
@@ -93,23 +97,25 @@ async def aggregate(request:Request):
                 clients.append(client)
 
     # Initialize a server and update its model using client data
-    server = Server()
+    # server = Server()
     server.update_model(clients)
-
     # Load a CSV dataset, process, and prepare it for testing
-    df = pd.read_csv('model/framingham_test.csv')
-    # print(df.head())
-    df = df.dropna()
-    df.fillna(method='bfill', inplace=True)
-    df = shuffle(df)
-    y = df["TenYearCHD"]
-    X = df.drop(columns=['TenYearCHD', 'education'], axis=1)
+    # df = pd.read_csv('model/framingham_test.csv')
+    # # print(df.head())
+    # df = df.dropna()
+    # df.fillna(method='bfill', inplace=True)
+    # df = shuffle(df)
+    # y = df["TenYearCHD"]
+    # X = df.drop(columns=['TenYearCHD', 'education'], axis=1)
 
     accuracy = list()
+    print(len(clients))
     # Perform model testing on data segments
-    for i in range(n):
-        acc = server.test(X[int(i * len(X) / n):int((i + 1) * len(X) / n)], y[int(i * len(y) / n):int((i + 1) * len(y) / n)])
+    for i in range(len(clients)):
+        acc = server.test(X_test_list[i], y_test_list[i])
         accuracy.append(int(acc*(10**5)))
+ 
+    print("*************************************************************************")
 
     print(accuracy)
     # acc = server.test(X, y)
@@ -143,15 +149,81 @@ async def aggregate(request:Request):
         }
     }
 
+# Setting up server model with random weight
+@app.get("/initiallySetServerWeights/")
+async def initiallySetServerWeights():
+    model = LogisticRegression()
+    df = pd.read_csv('model/framingham.csv')
+    df = df.dropna()
+    df.fillna(method='bfill', inplace=True)
+    data = df[28:30]
+
+    y = data["TenYearCHD"]
+    X = data.drop(columns=['TenYearCHD', 'education'], axis=1)
+    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=0)
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X)
+
+    model.fit(X_train, y)
+
+    print(model.coef_)
+    print(model.intercept_)
+    print(model.classes_)
+
+    server.model.coef_ = np.array(model.coef_)
+    server.model.intercept_ = model.intercept_
+    server.model.classes_ = np.array(list(model.classes_))
+
+    print(server.model.coef_)
+    print(server.model.intercept_)
+    print(server.model.classes_)
+
+    projectId = "2HWWSM26k2fOYJGFAiAxCsF2TRF"
+    projectSecret = "ab5fa9048e3166641c0a2726b6351230"
+    endpoint = "https://ipfs.infura.io:5001"
+    
+    server_grads=list()
+    server_grads.append(server.model.coef_[0].tolist())
+    server_grads.append(server.model.intercept_.tolist())
+    server_grads.append(server.model.classes_.tolist())
+    print('Server Grads: ', server_grads)
+
+    server_file = open("server.txt", "w+")
+
+    # Saving the 2D array in a text file
+    server_content = str(server_grads)
+
+    server_file.write(server_content)
+    server_file.close()
+    file = {
+        'server_file': 'server.txt',
+    }
+
+    ### ADD FILE TO IPFS AND SAVE THE HASH ###
+    server_response = requests.post(endpoint + '/api/v0/add', files=file, auth=(projectId, projectSecret))
+    print("Server Response:",server_response)
+    server_hash = server_response.text.split(",")[1].split(":")[1].replace('"', '')
+    print("Server Hash:", server_hash)
+    return {
+        "hash": server_hash
+    }
+
 # Setting up the prediction route
 @app.post("/train/")
 async def train(input:Input):
-    client_list = list()          #  list of client object
-
+    projectId = "2HWWSM26k2fOYJGFAiAxCsF2TRF"
+    projectSecret = "ab5fa9048e3166641c0a2726b6351230"
+    endpoint = "https://ipfs.infura.io:5001"
+    
     print(input.x)
 
+    client_list = list()
     for i in range(input.x):                   # no of client bar loop cholbe
-        client_list.append(Client(i))          #  id diye client er object banaya push kortisis
+        temp = Client(i)
+        temp.model.coef_ = server.model.coef_.copy()
+        temp.model.intercept_ = server.model.intercept_.copy()
+        temp.model.classes_ = server.model.classes_.copy()
+        client_list.append(temp)          #  id diye client er object banaya push kortisis
 
     df = pd.read_csv('model/framingham.csv')
     # print(df.head())
@@ -163,16 +235,14 @@ async def train(input:Input):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=0)
 
     client_count = len(client_list)
+    print(X_train[0:len(X_train)//client_count])
     for i in range(len(client_list)):          #  proti ta client k dataset er kisu data diye train korse
         client_list[i].train(X_train[i*len(X_train)//client_count:(i+1)*len(X_train)//client_count], y_train[i*len(y_train)//client_count:(i+1)*len(y_train)//client_count])
-
+        X_test_list.append(X_test[i*len(X_test)//client_count:(i+1)*len(X_test)//client_count])
+        y_test_list.append(y_train[i*len(y_test)//client_count:(i+1)*len(y_test)//client_count])
     # Assume client_list is a list containing models for all clients
 
     client_hashes = {}
-
-    projectId = "2HWWSM26k2fOYJGFAiAxCsF2TRF"
-    projectSecret = "ab5fa9048e3166641c0a2726b6351230"
-    endpoint = "https://ipfs.infura.io:5001"
 
     print(len(client_list))
 
