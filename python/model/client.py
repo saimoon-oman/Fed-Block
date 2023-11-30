@@ -9,20 +9,38 @@ from sklearn.preprocessing import StandardScaler
 class Client:
 
     def __init__(self,id):
-        self.model = LogisticRegression()
+#**************************FRAMINGHAM_DATASET******************************
+        # self.model = LogisticRegression()
+        # self.client_id = id
+        # self.client_name = "Device_"+str(id)
+        # # self.data = dataset
+#**************************UNSW_NB15_DATASET******************************
+        self.model = LogisticRegression(solver='lbfgs', random_state=123, max_iter = 4000, multi_class = "ovr")
         self.client_id = id
         self.client_name = "Device_"+str(id)
-        # self.data = dataset
-    
+# ************************************************************************
+
     def train(self, X, y):
+#**************************FRAMINGHAM_DATASET******************************
+        # # y = data["TenYearCHD"]
+        # # X = data.drop(columns=['TenYearCHD', 'education'], axis=1)
+        # # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=0)
+        # scaler = StandardScaler()
+        # X_train = scaler.fit_transform(X)
+
+        # self.model.fit(X_train,y)
+        
+        # # encoded = json.dumps((self.model.coef_.tolist(), self.model.intercept_.tolist(), self.model.classes_.tolist()))
+        # print("Training "+ str(self.client_name) + " done")
+        # return
+#**************************UNSW_NB15_DATASET******************************
         # y = data["TenYearCHD"]
         # X = data.drop(columns=['TenYearCHD', 'education'], axis=1)
         # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=0)
-        scaler = StandardScaler()
-        X_train = scaler.fit_transform(X)
+        # scaler = StandardScaler()
+        # X_train = scaler.fit_transform(X)
 
-
-        self.model.fit(X_train,y)
+        self.model.fit(X=X, y=y)
         
         # encoded = json.dumps((self.model.coef_.tolist(), self.model.intercept_.tolist(), self.model.classes_.tolist()))
         print("Training "+ str(self.client_name) + " done")

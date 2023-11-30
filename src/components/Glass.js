@@ -29,15 +29,21 @@ function Glass() {
       accounts.push(account_addr[element])
     }
     const serverhash = await axios.get('http://localhost:8080/initiallySetServerWeights')
-    console.log(serverhash.data.hash)
+    console.log("Server Hash (before js to sc): ", serverhash.data.hash)
     await fedLearning.methods.setServer(serverhash.data.hash).send({from:accounts[0], gas: 3000000})
     const s_hash = []
     await fedLearning.methods.getServer().call().then((server)=>{
       // console.log(data)
       s_hash.push(server)
-      console.log(s_hash)
-    }); 
-    const params = { x }    // Creates an object with no. of client which is x
+      console.log("Server Hash (after sc to js): ", s_hash)
+    });
+    console.log("Server hash in s_hash list: ", s_hash[0])
+    console.log("s_hash[] : ", s_hash)
+    // const params = { x }    // Creates an object with no. of client which is x
+    const params = { "s_hash": s_hash,
+                      "x": x
+    }    // Creates an object with no. of client which is x and s_hash
+    
     const data = await axios.post('http://localhost:8080/train', params)    // Sends a POST request to 'http://localhost:8080/train' endpoint with the 'params' object.   Receives the response data returned from the server.
     
     console.log("Accounts List: ",accounts[1])      // Logs the second account from the 'accounts' array to the console.
@@ -69,6 +75,7 @@ function Glass() {
       console.log("Get data from address ", accounts[i])
       console.log("data: ", payload[i-1])
     }
+    console.log("payload[] : ", payload)
     // await fedLearning.methods.getWeights(accounts[1]).call().then((data)=>{
     //   // console.log(data)
     //   payload.push(data)

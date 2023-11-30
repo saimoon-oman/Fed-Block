@@ -6,12 +6,17 @@ from sklearn.preprocessing import StandardScaler
 
 class Server:
     def __init__(self):
-        self.model = LogisticRegression()
+#**************************FRAMINGHAM_DATASET******************************
+
+        # self.model = LogisticRegression()
         # df = pd.read_csv('../model/framingham.csv')
         # # print(df.head())
         # df = df.dropna()
         # df.fillna(method='bfill', inplace=True)
         # self.train(df[:10])
+#**************************UNSW_NB15_DATASET******************************
+        self.model = LogisticRegression(solver='lbfgs', random_state=123, max_iter = 4000, multi_class = "ovr")
+# ****************************************************************************
 
     def train(self, data):
         y = data["TenYearCHD"]
