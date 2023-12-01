@@ -108,6 +108,8 @@ function Glass() {
     
     setServer(true)   // Sets the 'server' state to true, indicating the server has received aggregated data
     console.log("HELLLLOOOOOOO")
+    console.log("Accuracy: ", data_agg.data.data.accuracy)
+    console.log("Hash: ", data_agg.data.data.hash)
     // Votes on the accuracy of the aggregated data for the respective accounts using the 'flockie' contract
 
     for (let i = 1; i <= x; i++) {
@@ -116,9 +118,12 @@ function Glass() {
 
     const upd = await fedLearning.methods.getVoteUpdate().call()  // Fetches update information from the 'flockie' contract
 
+    console.log("Vote to Update? : ", upd)
+
     if(upd){
       // If an update is available, set the server hash on the 'fedLearning' contract
       var data = await fedLearning.methods.setServer(data_agg.data.data.hash).send({from:accounts[0], gas: 3000000})
+      console.log("Update model write to SC successfully : ", upd)
       if (data) {
         setUpdate(true)
         setApprove(data)

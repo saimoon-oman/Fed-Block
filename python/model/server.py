@@ -7,7 +7,6 @@ from sklearn.preprocessing import StandardScaler
 class Server:
     def __init__(self):
 #**************************FRAMINGHAM_DATASET******************************
-
         # self.model = LogisticRegression()
         # df = pd.read_csv('../model/framingham.csv')
         # # print(df.head())
@@ -32,9 +31,34 @@ class Server:
         return
 
     def update_model(self,clients):    # clients -> list of clients, each client contains coeffs, intercepts, classes
+#**************************FRAMINGHAM_DATASET******************************
+        # coeffs = np.array(clients[0][0])
+        # intercepts = np.array(clients[0][1])
+        # classes = set(clients[0][2])
+
+        # for i in range(1, len(clients)):
+        #     coeffs = np.add(coeffs,clients[i][0])
+        #     intercepts = np.add(intercepts,clients[i][1])
+        #     temp_class = set(clients[i][2])
+        #     classes = classes.union(temp_class)
+        
+        # agg_coeffs = np.divide(coeffs, len(clients))
+        # agg_intercepts = np.divide(intercepts, len(clients))
+        
+        # self.model.coef_ = np.array([agg_coeffs])
+        # self.model.intercept_ = agg_intercepts
+        # self.model.classes_ = np.array(list(classes))
+
+#**************************UNSW_NB15_DATASET******************************
+        # print("coeffs: ", clients[0][0])
+        # print("intercepts: ", clients[0][1])
+        # print("classes: ", clients[0][2])
         coeffs = np.array(clients[0][0])
         intercepts = np.array(clients[0][1])
         classes = set(clients[0][2])
+        # print("coeffs: ", coeffs)
+        # print("intercepts: ", intercepts)
+        # print("classes: ", classes)
 
         for i in range(1, len(clients)):
             coeffs = np.add(coeffs,clients[i][0])
@@ -45,9 +69,13 @@ class Server:
         agg_coeffs = np.divide(coeffs, len(clients))
         agg_intercepts = np.divide(intercepts, len(clients))
         
-        self.model.coef_ = np.array([agg_coeffs])
-        self.model.intercept_ = agg_intercepts
+        self.model.coef_ = np.array(agg_coeffs)
+        self.model.intercept_ = np.array(agg_intercepts)
         self.model.classes_ = np.array(list(classes))
+        print("self.model.coef_: ", self.model.coef_)
+        print("self.model.intercept_: ", self.model.intercept_)
+        print("self.model.classes_: ", self.model.classes_)
+# ************************************************************************
 
     # def update_model(self,clients):
     #     coeffs = np.array(clients[0].model.coef_)
@@ -81,14 +109,29 @@ class Server:
     #     return accuracy
 
     def test(self, X, y):
+#**************************FRAMINGHAM_DATASET******************************
+        # # y = self.data["TenYearCHD"]
+        # # X = self.data.drop(columns=['TenYearCHD', 'education'], axis=1)
+        # # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=0)
+
+        # scaler = StandardScaler()
+        # # X_train = scaler.fit_transform(X_train)
+        # X_test = scaler.fit_transform(X)
+        # predictions = self.model.predict(X_test)
+        # accuracy = np.sum(predictions == y) / y.shape[0] * 100
+
+        # return accuracy
+    
+#**************************UNSW_NB15_DATASET******************************
         # y = self.data["TenYearCHD"]
         # X = self.data.drop(columns=['TenYearCHD', 'education'], axis=1)
         # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=0)
 
-        scaler = StandardScaler()
+        # scaler = StandardScaler()
         # X_train = scaler.fit_transform(X_train)
-        X_test = scaler.fit_transform(X)
-        predictions = self.model.predict(X_test)
+        # X_test = scaler.fit_transform(X)
+        predictions = self.model.predict(X)
         accuracy = np.sum(predictions == y) / y.shape[0] * 100
 
-        return accuracy
+        return accuracy    
+# ************************************************************************

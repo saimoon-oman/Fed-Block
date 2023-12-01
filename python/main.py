@@ -73,6 +73,114 @@ app.add_middleware(
 
 @app.post("/aggregate/")
 async def aggregate(request:Request):
+#**************************FRAMINGHAM_DATASET******************************
+    # projectId = "2HWWSM26k2fOYJGFAiAxCsF2TRF"
+    # projectSecret = "ab5fa9048e3166641c0a2726b6351230"
+    # endpoint = "https://ipfs.infura.io:5001"
+    # # print(await request.json())
+
+    
+    # res = await request.json()      # Retrieve JSON data from the HTTP request
+    # print("result")
+    # print(res)
+
+    # clients = list()
+    # # Process each item in the received data
+    # for i in res:
+    #     # Prepare parameters for IPFS request
+    #     params = {
+    #         'arg': i
+    #     }
+
+    #     # Send a request to IPFS to retrieve data
+    #     response2 = requests.post(endpoint + '/api/v0/cat', params=params, auth=(projectId, projectSecret))
+    #     # print(response2)
+    #     # print(response2.text)
+        
+
+    #     # Process the data from IPFS and create a list of clients
+    #     with open(response2.text) as f:
+    #         print(f"Value of f: {f}")
+    #         for line in f:
+    #             x = line.split(",")
+    #             # print(x)
+    #             client=list()
+    #             coef=list()
+    #             intercept=list()
+    #             classes=list()
+    #             x[0]=x[0][2:]
+
+    #             # Process and extract coefficients, intercept, and classes
+    #             for i in range(13):
+    #                 coef.append(float(x[i][1:]))
+    #             x[13] = x[13][1:]
+    #             x[13] = x[13][:-1]
+    #             coef.append(float(x[13]))
+    #             x[14]=x[14][2:]
+    #             x[14]=x[14][:-1]
+    #             intercept.append(float(x[14]))
+    #             classes.append(int(x[15][-1]))
+    #             classes.append(int(x[16][1]))
+    #             client.append(coef)
+    #             client.append(intercept)
+    #             client.append(classes)
+    #             print(client)
+    #             clients.append(client)
+
+    # # Initialize a server and update its model using client data
+    # # server = Server()
+    # server.update_model(clients)
+    # # Load a CSV dataset, process, and prepare it for testing
+    # # df = pd.read_csv('model/framingham_test.csv')
+    # # # print(df.head())
+    # # df = df.dropna()
+    # # df.fillna(method='bfill', inplace=True)
+    # # df = shuffle(df)
+    # # y = df["TenYearCHD"]
+    # # X = df.drop(columns=['TenYearCHD', 'education'], axis=1)
+
+    # accuracy = list()
+    # print(len(clients))
+    # # Perform model testing on data segments
+    # for i in range(len(clients)):
+    #     acc = server.test(X_test_list[i], y_test_list[i])
+    #     accuracy.append(int(acc*(10**5)))
+ 
+    # print("*************************************************************************")
+
+    # print(accuracy)
+    # # acc = server.test(X, y)
+
+    # server_grads=list()
+    # server_grads.append(server.model.coef_[0].tolist())
+    # server_grads.append(server.model.intercept_.tolist())
+    # server_grads.append(server.model.classes_.tolist())
+    # print('Server Grads: ', server_grads)
+
+    # server_file = open("server.txt", "w+")
+
+    # # Saving the 2D array in a text file
+    # server_content = str(server_grads)
+
+    # server_file.write(server_content)
+    # server_file.close()
+    # file = {
+    #     'server_file': 'server.txt',
+    # }
+
+    # ### ADD FILE TO IPFS AND SAVE THE HASH ###
+    # server_response = requests.post(endpoint + '/api/v0/add', files=file, auth=(projectId, projectSecret))
+    # print("Server Response:",server_response)
+    # server_hash = server_response.text.split(",")[1].split(":")[1].replace('"', '')
+    # print("Server Hash:", server_hash)
+    # return {
+    #     "data": {
+    #         "accuracy": accuracy,
+    #         "hash": server_hash
+    #     }
+    # }
+
+#**************************UNSW_NB15_DATASET******************************
     projectId = "2HWWSM26k2fOYJGFAiAxCsF2TRF"
     projectSecret = "ab5fa9048e3166641c0a2726b6351230"
     endpoint = "https://ipfs.infura.io:5001"
@@ -80,8 +188,8 @@ async def aggregate(request:Request):
 
     
     res = await request.json()      # Retrieve JSON data from the HTTP request
-    print("result")
-    print(res)
+    # print("result")
+    # print(res)
 
     clients = list()
     # Process each item in the received data
@@ -101,31 +209,45 @@ async def aggregate(request:Request):
         with open(response2.text) as f:
             print(f"Value of f: {f}")
             for line in f:
-                x = line.split(",")
-                # print(x)
+                print("Line: ", line)
+                print("Type of Line: ", type(line))
+                
                 client=list()
-                coef=list()
-                intercept=list()
-                classes=list()
-                x[0]=x[0][2:]
+                # Safely evaluate the string into a Python object
+                data_list = ast.literal_eval(line)
+                
+                # Flatten and reshape the nested list
+                coef = data_list[0]
+                intercept = data_list[1]
+                classes = data_list[2]
 
-                # Process and extract coefficients, intercept, and classes
-                for i in range(13):
-                    coef.append(float(x[i][1:]))
-                x[13] = x[13][1:]
-                x[13] = x[13][:-1]
-                coef.append(float(x[13]))
-                x[14]=x[14][2:]
-                x[14]=x[14][:-1]
-                intercept.append(float(x[14]))
-                classes.append(int(x[15][-1]))
-                classes.append(int(x[16][1]))
+                # x = line.split(",")
+                # print("X[0]: ", x[0])
+                # # print(x)
+                # # client=list()
+                # coef=list()
+                # intercept=list()
+                # classes=list()
+                # x[0]=x[0][2:]
+
+                # # Process and extract coefficients, intercept, and classes
+                # for i in range(13):
+                #     coef.append(float(x[i][1:]))
+                # x[13] = x[13][1:]
+                # x[13] = x[13][:-1]
+                # coef.append(float(x[13]))
+                # x[14]=x[14][2:]
+                # x[14]=x[14][:-1]
+                # intercept.append(float(x[14]))
+                # classes.append(int(x[15][-1]))
+                # classes.append(int(x[16][1]))
                 client.append(coef)
                 client.append(intercept)
                 client.append(classes)
                 print(client)
                 clients.append(client)
 
+    # print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     # Initialize a server and update its model using client data
     # server = Server()
     server.update_model(clients)
@@ -151,7 +273,7 @@ async def aggregate(request:Request):
     # acc = server.test(X, y)
 
     server_grads=list()
-    server_grads.append(server.model.coef_[0].tolist())
+    server_grads.append(server.model.coef_.tolist())
     server_grads.append(server.model.intercept_.tolist())
     server_grads.append(server.model.classes_.tolist())
     print('Server Grads: ', server_grads)
@@ -181,8 +303,7 @@ async def aggregate(request:Request):
 
 # Setting up server model with random weight
 @app.get("/initiallySetServerWeights/")
-async def initiallySetServerWeights():
-    
+async def initiallySetServerWeights(): 
 #**************************FRAMINGHAM_DATASET******************************
     # model = LogisticRegression()
     # df = pd.read_csv('model/framingham.csv')

@@ -17,12 +17,15 @@ contract FedLearning{
     uint update; 
     uint noUpdate;
 
+    uint accuracy;
+
     constructor() {
         // Initilizing default values
         clientCount = 0;
         voterCount = 0;
         update = 0;
         noUpdate = 0;
+        accuracy = 0;
     }
 
     function sendWeights(address x, string memory y) public {
@@ -34,6 +37,10 @@ contract FedLearning{
 
     function setServer(string memory serverHash) public returns(bool){
         server = serverHash;
+        clientCount = 0;
+        voterCount = 0;
+        update = 0;
+        noUpdate = 0;
         return true;
     }
 
