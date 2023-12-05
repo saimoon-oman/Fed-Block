@@ -57,7 +57,7 @@ contract FedLearning{
 
     function vote(address voter, uint acc) public payable {
         assert(isRegistered[voter]==true); //voter == msg.sender
-        if(acc > 7500000){
+        if(acc > 6000000){
             update += 1;
         }
         else{

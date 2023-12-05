@@ -209,7 +209,7 @@ async def aggregate(request:Request):
         with open(response2.text) as f:
             print(f"Value of f: {f}")
             for line in f:
-                print("Line: ", line)
+                # print("Line: ", line)
                 print("Type of Line: ", type(line))
                 
                 client=list()
